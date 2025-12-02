@@ -1,75 +1,68 @@
-// Dashboard.jsx - Updated with dummy data
+// Dashboard.jsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { format, addDays, differenceInDays, subDays } from "date-fns";
-import { FiCalendar } from "react-icons/fi";
+import { format, subMonths } from "date-fns";
+import { FiRefreshCw } from "react-icons/fi";
 
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { datePickerCustomStyles } from "./datePickerCustomStyles";
+import MetricCards from "./MetricCards";
+import RevenueGraph from "./RevenueGraph";
+import GeoDistributionMap from "./GeoDistributionMap";
 
-import ConversionClicksChart from "./ConversionClicksChart";
-import TopPerformingCampaigns from "./TopPerformingCampaigns";
-import TotalSpendReport from "./TotalSpendReport";
-import GeoTargetingChart from "./GeoTargetingChart";
-
-// Dummy data
-const generateDummyGraphData = () => {
+// Generate dummy data for last 6 months
+const generateDummyRevenueGraph = () => {
   const data = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = subDays(new Date(), i);
+  for (let i = 5; i >= 0; i--) {
+    const date = subMonths(new Date(), i);
     data.push({
-      date: format(date, "yyyy-MM-dd"),
-      clicks: Math.floor(Math.random() * 5000) + 2000,
-      conversions: Math.floor(Math.random() * 500) + 100,
-      totalSpend: Math.floor(Math.random() * 10000) + 5000,
+      month: format(date, "yyyy-MM"),
+      totalRevenue: (Math.random() * 50 + 30).toFixed(2),
     });
   }
   return data;
 };
 
 const dummyDashboardData = {
-  range: {
-    from: format(subDays(new Date(), 6), "yyyy-MM-dd"),
-    to: format(new Date(), "yyyy-MM-dd"),
+  metrics: {
+    todayRevenue: "1,245.50",
+    revenueDiff: "+12.5",
+    todayClicks: "8,542",
+    clicksDiff: "+8.3",
+    arpm: "2.45",
+    arpmDiff: "+5.2",
+    arpu: "0.85",
+    arpuDiff: "-2.1",
+    todayDau: "12,450",
   },
-  cards: {
-    spends: 1250.50,
-    clicks: 12450,
-    conversions: 850,
-    totalSpend: 45230.75,
-  },
-  graph: generateDummyGraphData(),
-  countryGraph: [
-    { country_code: "US", totalConversions: "450" },
-    { country_code: "GB", totalConversions: "280" },
-    { country_code: "CA", totalConversions: "320" },
-    { country_code: "AU", totalConversions: "190" },
-    { country_code: "DE", totalConversions: "210" },
-    { country_code: "FR", totalConversions: "175" },
-    { country_code: "IN", totalConversions: "520" },
-    { country_code: "BR", totalConversions: "150" },
+  totalRevenue: "45,230.75",
+  revenueGraph: generateDummyRevenueGraph(),
+  geoData: [
+    { country_code: "US", country_name: "United States", activeUsers: 4500 },
+    { country_code: "GB", country_name: "United Kingdom", activeUsers: 2800 },
+    { country_code: "CA", country_name: "Canada", activeUsers: 3200 },
+    { country_code: "AU", country_name: "Australia", activeUsers: 1900 },
+    { country_code: "DE", country_name: "Germany", activeUsers: 2100 },
+    { country_code: "FR", country_name: "France", activeUsers: 1750 },
+    { country_code: "IN", country_name: "India", activeUsers: 5200 },
+    { country_code: "BR", country_name: "Brazil", activeUsers: 1500 },
   ],
 };
 
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState(dummyDashboardData);
+  const [refreshing, setRefreshing] = useState(false);
+
   const firstName = "John";
   const lastName = "Doe";
 
-  const [dateRange, setDateRange] = useState([subDays(new Date(), 6), new Date()]);
-  const [startDate, endDate] = dateRange;
-
-  const [dashboardData] = useState(dummyDashboardData);
-
-  const handleDateChange = (update) => {
-    const [start, end] = update;
-
-    if (start && end && differenceInDays(end, start) > 14) {
-      alert("Date range cannot exceed 15 days.");
-      return;
-    }
-
-    setDateRange(update);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setDashboardData({
+        ...dummyDashboardData,
+        revenueGraph: generateDummyRevenueGraph(),
+      });
+      setRefreshing(false);
+    }, 500);
   };
 
   return (
@@ -77,15 +70,12 @@ const Dashboard = () => {
       className="space-y-6 sm:space-y-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ staggerChildren: 0.1 }}
     >
-      <style>{datePickerCustomStyles}</style>
-
+      {/* Header */}
       <motion.div
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
       >
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 truncate">
@@ -96,52 +86,47 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="relative w-full sm:w-auto sm:min-w-[280px]">
-          <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
-          <DatePicker
-            selectsRange={true}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={handleDateChange}
-            maxDate={startDate ? addDays(startDate, 14) : null}
-            selectsDisabledDaysInRange
-            className="w-full border border-gray-300 rounded-lg py-2 sm:py-2.5 pl-9 sm:pl-10 pr-3 sm:pr-4 text-xs sm:text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer"
-            dateFormat="dd MMM yyyy"
-            popperPlacement="bottom-end"
-            popperClassName="date-picker-popper"
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="p-2.5 sm:p-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <FiRefreshCw
+            size={20}
+            className={`text-gray-600 ${refreshing ? "animate-spin" : ""}`}
           />
-        </div>
+        </button>
       </motion.div>
 
-      <div className="space-y-6 sm:space-y-8">
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="lg:col-span-2">
-            <ConversionClicksChart graphData={dashboardData.graph} />
-          </div>
-          <div className="lg:col-span-1">
-            <TopPerformingCampaigns />
-          </div>
-        </motion.div>
+      {/* Metric Cards */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        <MetricCards metrics={dashboardData.metrics} />
+      </motion.div>
 
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="lg:col-span-2">
-            <TotalSpendReport graphData={dashboardData.graph} cardData={dashboardData.cards} />
-          </div>
-          <div className="lg:col-span-1">
-            <GeoTargetingChart countryData={dashboardData.countryGraph} />
-          </div>
-        </motion.div>
-      </div>
+      {/* Bottom Section: Revenue Graph & Geo Map */}
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        {/* Revenue Graph - Takes 2 columns */}
+        <div className="lg:col-span-2">
+          <RevenueGraph
+            totalRevenue={dashboardData.totalRevenue}
+            revenueGraph={dashboardData.revenueGraph}
+          />
+        </div>
+
+        {/* Geo Distribution - Takes 1 column */}
+        <div className="lg:col-span-1">
+          <GeoDistributionMap geoData={dashboardData.geoData} />
+        </div>
+      </motion.div>
     </motion.div>
   );
 };
