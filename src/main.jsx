@@ -7,7 +7,7 @@ import { RouterProvider } from "react-router-dom";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
 import ApplicationsLayout from "./components/Applications/ApplicationsLayout.jsx";
-import Applications from "./components/Applications/Apllications.jsx"
+import Applications from "./components/Applications/Applications.jsx"
 import PlacementsLayout from "./components/Placements/PlacementsLayout.jsx";
 import Placements from "./components/Placements/Placements.jsx"
 import NotificationsLayout from "./components/Notifications/NotificationsLayout.jsx";

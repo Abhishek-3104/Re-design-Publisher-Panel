@@ -4,16 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   FiBell,
   FiChevronDown,
-  FiEdit2,
   FiLock,
   FiLogOut,
-  FiFileText,
   FiPlus,
   FiUsers,
   FiMenu,
-  FiShield,
-  FiActivity,
-  FiServer,
 } from "react-icons/fi";
 
 const Header = ({ onMenuClick }) => {
@@ -41,24 +36,10 @@ const Header = ({ onMenuClick }) => {
         return 'Dashboard';
       case '/dashboard/profile':
         return 'Profile';
-      case '/dashboard/wallet':
-        return 'Wallet';
-      case '/dashboard/reports':
-        return 'Reports';
       case '/dashboard/applications':
         return 'Applications';
-      case '/dashboard/campaigns':
-        return 'Campaigns';
       case '/dashboard/team-members':
         return 'Team Members';
-      case '/dashboard/whitelist-ips':
-        return 'Whitelist IPs';
-      case '/dashboard/logs/postback':
-        return 'Postback Logs';
-      case '/dashboard/logs/sessions':
-        return 'Session Logs';
-      case '/dashboard/logs':
-        return 'Logs';
       default:
         return 'Dashboard';
     }
@@ -120,21 +101,6 @@ const Header = ({ onMenuClick }) => {
   const handleTeamMembersClick = () => {
     setProfileOpen(false);
     navigate('/dashboard/team-members');
-  };
-
-  const handleWhitelistIPsClick = () => {
-    setProfileOpen(false);
-    navigate('/dashboard/whitelist-ips');
-  };
-
-  const handlePostbackLogsClick = () => {
-    setProfileOpen(false);
-    navigate('/dashboard/logs/postback');
-  };
-
-  const handleSessionLogsClick = () => {
-    setProfileOpen(false);
-    navigate('/dashboard/logs/sessions');
   };
 
   return (
